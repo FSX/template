@@ -254,7 +254,6 @@ func (p *parser) parseDefine() Node {
 	return node
 }
 
-// Super, inherit?
 func (p *parser) parseInherit() Node {
 	p.peekNonSpace() // Consume spaces.
 	name := p.parseIdentifier()

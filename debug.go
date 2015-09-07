@@ -5,38 +5,38 @@ import (
 	"strings"
 )
 
-func printNodes(node Node, level int) {
+func PrintNodes(node Node, level int) {
 	s := strings.Repeat("    ", level)
 
 	switch t := node.(type) {
 	case (*listNode):
 		fmt.Printf("%s(listNode)\n", s)
 		for _, n := range t.Children() {
-			printNodes(n, level+1)
+			PrintNodes(n, level+1)
 		}
 	case (*inheritNode):
 		fmt.Printf("%s(inheritNode: %s)\n", s, t.Name())
 
 		for _, n := range t.Children() {
-			printNodes(n, level+1)
+			PrintNodes(n, level+1)
 		}
 	case (*defineNode):
 		fmt.Printf("%s(defineNode: %s)\n", s, t.Name())
 
 		for _, n := range t.Children() {
-			printNodes(n, level+1)
+			PrintNodes(n, level+1)
 		}
 	case (*sectionNode):
 		fmt.Printf("%s(sectionNode inverted=%t: %s)\n", s, t.Inverted, t.Name())
 
 		printPipe(level + 1)
-		printNodes(t.Head, 0)
+		PrintNodes(t.Head, 0)
 		for _, n := range t.Tail {
 			printPipe(level + 1)
-			printNodes(n, 0)
+			PrintNodes(n, 0)
 		}
 		for _, n := range t.Children() {
-			printNodes(n, level+1)
+			PrintNodes(n, level+1)
 		}
 	case (*textNode):
 		if len(t.Text) > 10 {
@@ -54,10 +54,10 @@ func printNodes(node Node, level int) {
 		fmt.Printf("%s(variableNode)\n", s)
 
 		printPipe(level + 1)
-		printNodes(t.Head, 0)
+		PrintNodes(t.Head, 0)
 		for _, n := range t.Tail {
 			printPipe(level + 1)
-			printNodes(n, 0)
+			PrintNodes(n, 0)
 		}
 	case (*identifierNode):
 		fmt.Printf("%s(identifierNode: %s)\n", s, t.Name())
