@@ -1,7 +1,7 @@
 package template
 
 import (
-	"path/filepath"
+	// "path/filepath"
 	"sync"
 )
 
@@ -10,7 +10,7 @@ type NodeMap struct {
 	m map[string]Node
 }
 
-func (n *nodeMap) Get(name string) (Node, bool) {
+func (n *NodeMap) Get(name string) (Node, bool) {
 	n.Lock()
 	defer n.Unlock()
 
@@ -21,16 +21,16 @@ func (n *nodeMap) Get(name string) (Node, bool) {
 	}
 }
 
-func (n *nodeMap) Set(name string, p Node) {
+func (n *NodeMap) Set(name string, p Node) {
 	n.Lock()
 	n.m[name] = p
 	n.Unlock()
 }
 
 func ParseFiles(basedir string, filenames ...string) (*Template, error) {
-	for _, n := range filenames {
-		//
-	}
+	// for _, n := range filenames {
+	// 	//
+	// }
 
 	return nil, nil
 }
