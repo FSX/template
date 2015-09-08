@@ -88,29 +88,29 @@ func (s *sectionNode) Children() []Node {
 
 // partialNode holds a reference to another template.
 type partialNode struct {
-	ident *identifierNode
+	name string
 }
 
-func newPartial(ident *identifierNode) *partialNode {
-	return &partialNode{ident}
+func newPartial(name string) *partialNode {
+	return &partialNode{name}
 }
 
 func (p *partialNode) Name() string {
-	return p.ident.Name()
+	return p.name
 }
 
 // inheritNode holds a reference to an other template and subtemplates.
 type inheritNode struct {
-	ident *identifierNode
+	name  string
 	tmpls map[string][]Node
 }
 
-func newInherit(name *identifierNode) *inheritNode {
+func newInherit(name string) *inheritNode {
 	return &inheritNode{name, make(map[string][]Node)}
 }
 
 func (i *inheritNode) Name() string {
-	return i.ident.Name()
+	return i.name
 }
 
 func (i *inheritNode) Append(n Node) {
@@ -137,16 +137,16 @@ func (i *inheritNode) Children() []Node {
 
 // defineNode has a name and holds child nodes.
 type defineNode struct {
-	ident    *identifierNode
+	name     string
 	children []Node
 }
 
-func newDefine(name *identifierNode) *defineNode {
-	return &defineNode{ident: name}
+func newDefine(name string) *defineNode {
+	return &defineNode{name: name}
 }
 
 func (d *defineNode) Name() string {
-	return d.ident.Name()
+	return d.name
 }
 
 func (d *defineNode) Append(n Node) {
@@ -161,15 +161,15 @@ func (d *defineNode) Children() []Node {
 // subtemplate or inherit tag. closeNode is not included
 // in the final tree of nodes.
 type closeNode struct {
-	ident *identifierNode
+	name string
 }
 
-func newClose(name *identifierNode) *closeNode {
+func newClose(name string) *closeNode {
 	return &closeNode{name}
 }
 
 func (c *closeNode) Name() string {
-	return c.ident.Name()
+	return c.name
 }
 
 // identifierNode holds a reference to an

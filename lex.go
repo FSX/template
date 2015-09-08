@@ -64,6 +64,8 @@ func (i item) Type() string {
 		s = "itemIdentifier"
 	case itemDot:
 		s = "itemDot"
+	case itemName:
+		s = "itemName"
 	case itemSpace:
 		s = "itemSpace"
 	case itemString:
@@ -90,7 +92,8 @@ const (
 	itemText                       // Plain text
 	itemTagType                    // Defines the type of a tag
 	itemIdentifier                 // Alphanumeric identifier
-	itemDot                        // One or more dots
+	itemDot                        // A dot
+	itemName                       // A name
 	itemSpace                      // Run of spaces separating arguments
 	itemString                     // A text string
 	itemComplex                    // complex constant (1+2i); imaginary is just a number
@@ -255,18 +258,14 @@ const (
 )
 
 var (
-	lexSpaceExpr       stateFn
-	lexIdentifierExpr  stateFn
-	lexSpaceIdent      stateFn
-	lexIdentifierIdent stateFn
+	lexSpaceExpr stateFn
+	lexSpaceName stateFn
 )
 
 func init() {
 	// NOTE: Functions initialized here to avoid an initialization loop.
 	lexSpaceExpr = makeLexSpace(lexExpressionTag)
-	lexIdentifierExpr = makeLexIdentifier(lexExpressionTag)
-	lexSpaceIdent = makeLexSpace(lexIdentifierTag)
-	lexIdentifierIdent = makeLexIdentifier(lexIdentifierTag)
+	lexSpaceName = makeLexSpace(lexNameTag)
 }
 
 func makeLexSpace(nextState stateFn) stateFn {
@@ -276,32 +275,6 @@ func makeLexSpace(nextState stateFn) stateFn {
 		}
 
 		l.emit(itemSpace)
-		return nextState
-	}
-}
-
-// TODO: Tidy up?
-func makeLexIdentifier(nextState stateFn) stateFn {
-	return func(l *lexer) stateFn {
-	Loop:
-		for {
-			switch r := l.peek(); {
-			case isAlphaNumeric(r):
-				l.next()
-			case r == '.':
-				l.emit(itemIdentifier)
-				l.next()
-				l.emit(itemDot)
-
-				if s := l.peek(); !isAlphaNumeric(s) {
-					return l.errorf("unrecognized character in action: %#U", r)
-				}
-			default:
-				l.emit(itemIdentifier)
-				break Loop
-			}
-		}
-
 		return nextState
 	}
 }
@@ -350,7 +323,7 @@ func lexTag(l *lexer) stateFn {
 		return lexExpressionTag
 	case '<', '>', '/', '$':
 		l.emit(itemTagType)
-		return lexIdentifierTag
+		return lexNameTag
 	case '!':
 		l.emit(itemTagType)
 		return lexComment
@@ -406,7 +379,7 @@ func lexExpressionTag(l *lexer) stateFn {
 		return lexSpaceExpr
 	case isAlpha(r):
 		l.backup()
-		return lexIdentifierExpr
+		return lexIdentifier
 	case isNumeric(r), r == '-', r == '+':
 		l.backup()
 		return lexNumber
@@ -416,6 +389,29 @@ func lexExpressionTag(l *lexer) stateFn {
 	}
 
 	return l.errorf("unrecognized character in tag: %#U", r)
+}
+
+func lexIdentifier(l *lexer) stateFn {
+Loop:
+	for {
+		switch r := l.peek(); {
+		case isAlphaNumeric(r):
+			l.next()
+		case r == '.':
+			l.emit(itemIdentifier)
+			l.next()
+			l.emit(itemDot)
+
+			if s := l.peek(); !isAlphaNumeric(s) {
+				return l.errorf("unrecognized character in identifier: %#U", r)
+			}
+		default:
+			l.emit(itemIdentifier)
+			break Loop
+		}
+	}
+
+	return lexExpressionTag
 }
 
 func lexNumber(l *lexer) stateFn {
@@ -463,11 +459,7 @@ Loop:
 	return lexExpressionTag
 }
 
-func lexIdentifierTag(l *lexer) stateFn {
-	// NOTE: An identifier tag should only contain one identifier, but
-	// to keep the code simple this rule is not enforced in the lexer.
-	// Instead this rule will be enforced in the parser.
-
+func lexNameTag(l *lexer) stateFn {
 	if strings.HasPrefix(l.input[l.pos:], l.rightDelim) {
 		return lexRightDelim
 	}
@@ -478,13 +470,31 @@ func lexIdentifierTag(l *lexer) stateFn {
 	case r == eof || isEndOfLine(r):
 		return l.errorf("unclosed tag")
 	case isSpace(r):
-		return lexSpaceIdent
+		return lexSpaceName
 	case isAlpha(r):
 		l.backup()
-		return lexIdentifierIdent
+		return lexName
 	}
 
 	return l.errorf("unrecognized character in tag: %#U", r)
+}
+
+func lexName(l *lexer) stateFn {
+	if r := l.next(); !isAlpha(r) {
+		return l.errorf("name must begin with a letter, but got: %#U", r)
+	}
+
+	for {
+		r := l.next()
+		if !isAlphaNumeric(r) && r != '.' && r != '/' {
+			break
+		}
+	}
+
+	l.backup()
+	l.emit(itemName)
+
+	return lexNameTag
 }
 
 func isAlpha(r rune) bool {

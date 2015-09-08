@@ -227,8 +227,10 @@ func (p *parser) parseSection(inverted bool) Node {
 }
 
 func (p *parser) parsePartial() Node {
-	p.peekNonSpace() // Consume spaces.
-	name := p.parseIdentifier()
+	name := p.parseName()
+	if name == "" {
+		return nil
+	}
 
 	if t := p.nextNonSpace(); t.typ != itemRightDelim {
 		return p.errorf("expected a delimiter, but got: %s", t.val)
@@ -238,8 +240,10 @@ func (p *parser) parsePartial() Node {
 }
 
 func (p *parser) parseDefine() Node {
-	p.peekNonSpace() // Consume spaces.
-	name := p.parseIdentifier()
+	name := p.parseName()
+	if name == "" {
+		return nil
+	}
 
 	if t := p.nextNonSpace(); t.typ != itemRightDelim {
 		return p.errorf("expected a delimiter, but got: %s", t.val)
@@ -255,8 +259,10 @@ func (p *parser) parseDefine() Node {
 }
 
 func (p *parser) parseInherit() Node {
-	p.peekNonSpace() // Consume spaces.
-	name := p.parseIdentifier()
+	name := p.parseName()
+	if name == "" {
+		return nil
+	}
 
 	if t := p.nextNonSpace(); t.typ != itemRightDelim {
 		return p.errorf("expected a delimiter, but got: %s", t.val)
@@ -272,8 +278,10 @@ func (p *parser) parseInherit() Node {
 }
 
 func (p *parser) parseClose() Node {
-	p.peekNonSpace() // Consume spaces.
-	name := p.parseIdentifier()
+	name := p.parseName()
+	if name == "" {
+		return nil
+	}
 
 	if t := p.nextNonSpace(); t.typ != itemRightDelim {
 		return p.errorf("expected a delimiter, but got: %s", t.val)
@@ -339,4 +347,16 @@ Loop:
 	}
 
 	return newIdentifier(s)
+}
+
+func (p *parser) parseName() (name string) {
+	t := p.nextNonSpace()
+
+	if t.typ != itemName {
+		p.errorf("expected a delimiter, but got: %s", t.val)
+	} else {
+		name = t.val
+	}
+
+	return
 }
