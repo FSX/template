@@ -24,12 +24,12 @@ var parseTests = []parseTest{
 	{"define", `(($test))((/test))`, noError, ""},
 	{"comment", `((! comment))`, noError, ""},
 	{"partial", `((>partial))`, noError, ""},
-	{"incorrect-section", `((^3.14))((/3.14))`, hasError, "incorrect-section:1:9: expression in section must start with identifier"},
-	{"unclosed-section", "((#test))", hasError, "unclosed-section:1:9: tag not closed"},
-	{"close-tag", "((/test))", hasError, "close-tag:1:9: unexpected closing tag"},
-	{"empty-tag", "(())", hasError, "empty-tag:1:4: empty tags are not allowed"},
-	{"unknown", "((%test))", hasError, "unknown:1:3: unrecognized character in tag: U+0025 '%'"},
-	{"unclosed", "((unclosed", hasError, "unclosed:1:10: unclosed tag"},
+	{"incorrect-section", `((^3.14))((/3.14))`, hasError, "incorrect-section:1: expression in section must start with identifier"},
+	{"unclosed-section", "((#test))", hasError, "unclosed-section:1: tag not closed"},
+	{"close-tag", "((/test))", hasError, "close-tag:1: unexpected closing tag"},
+	{"empty-tag", "(())", hasError, "empty-tag:1: empty tags are not allowed"},
+	{"unknown", "((%test))", hasError, "unknown:1: unrecognized character in tag: U+0025 '%'"},
+	{"unclosed", "((unclosed", hasError, "unclosed:1: unclosed tag"},
 }
 
 func TestParse(t *testing.T) {

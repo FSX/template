@@ -5,7 +5,7 @@ import (
 )
 
 type NodeStorage interface {
-	Get(string, bool) Node
+	Get(string) (Node, bool)
 	Set(string, Node)
 }
 

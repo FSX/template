@@ -3,7 +3,6 @@ package template
 import (
 	"errors"
 	"fmt"
-	"strings"
 )
 
 type parser struct {
@@ -79,13 +78,8 @@ func (p *parser) errorf(format string, args ...interface{}) Node {
 		msg = fmt.Sprintf(format, args...)
 	}
 
-	pos := int(p.lex.pos)
-	if i := strings.LastIndex(p.lex.input[:p.lex.lastPos], "\n"); i > -1 {
-		pos = pos - i - 1
-	}
-
 	p.err = errors.New(fmt.Sprintf(
-		"%s:%d:%d: %s", p.name, p.lex.lineNumber(), pos, msg))
+		"%s:%d: %s", p.name, p.lex.lineNumber(), msg))
 
 	return nil
 }
