@@ -76,7 +76,7 @@ func stripExt(filename string) string {
 	}
 
 	if b := strings.IndexRune(filename[a:], '.'); b > -1 {
-		return filename[a : a+b]
+		return filename[:a+b]
 	} else {
 		return filename
 	}

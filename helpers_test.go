@@ -6,8 +6,8 @@ func TestStripExt(t *testing.T) {
 	tests := [][]string{
 		{"abc.ext", "abc"},
 		{"abc.tar.gz", "abc"},
-		{"a.b.c/abc.tar.gz", "abc"},
-		{"a.b.c/.", ""},
+		{"a.b.c/abc.tar.gz", "a.b.c/abc"},
+		{"a.b.c/.", "a.b.c/"},
 		{"a.b.c/", "a.b.c/"},
 	}
 
